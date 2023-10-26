@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<!-- meta block -->
+		<title>BET log 分析</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+
+	<link rel="shortcut icon" href="/static/dhtmlx_common/favicon/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="/static/dhtmlx_common/favicon/icon-16.png" sizes="16x16" />
+	<link rel="icon" href="/static/dhtmlx_common/favicon/icon-32.png" sizes="32x32" />
+	<link rel="icon" href="/static/dhtmlx_common/favicon/icon-48.png" sizes="48x48" />
+	<link rel="icon" href="/static/dhtmlx_common/favicon/icon-96.png" sizes="96x96" />
+	<link rel="icon" href="/static/dhtmlx_common/favicon/icon-144.png" sizes="144x144" />
+	<!-- end meta block -->
+	<script type="text/javascript" src="/static/dhtmlx_codebase/suite.js?v=8.2.0"></script>
+	<link rel="stylesheet" href="/static/dhtmlx_codebase/suite.css?v=8.2.0">
+
+	<link rel="stylesheet" href="/static/dhtmlx_common/index.css?v=8.2.0">
+	<link href="/static/dhtmlx_config/index_common/css/materialdesignicons.css?v=8.2.0"
+		media="all" rel="stylesheet" type="text/css">
+	<!-- custom sample head -->
+	<script src="/static/dhtmlx_config/index_common/data.js?v=8.2.0"></script>
+
+		<!-- custom sample head -->
+		<style>
+
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			/* Grid styling */
+			.contact_email {
+				color: var(--dhx-color-primary);
+			}
+			.grid .dhx_grid-content {
+				border: none;
+			}
+
+			.gird_cell_сlass {
+				background:rgb(123, 122, 122);
+			}
+
+			.load_popup_css {
+				background:rgb(205, 123, 123);
+				width: 200px;
+				padding: 10px; 
+				text-align: left
+			}
+
+			
+			/* Layout cell styling  */
+			.dhx_layout_cell--overflow-auto {
+				overflow: auto;
+			}
+
+			.dhx_layout_cell--border-none {
+				border: none !important;
+			}
+
+			.dhx_layout_cell-align_content--center {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			/* Calendar/Timepicker cell styling */
+			.dhx_layout_calendar_cell {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				min-width: 248px;
+			}
+
+			/* Sidebar custom elements styling */
+			.dhx_navbar--vertical {
+				overflow: hidden;
+			}
+
+			.user-info_container {
+				padding-top: 8px;
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: center;
+			}
+
+			.user-info_avatar {
+				height: 40px;
+				width: 40px;
+				border-radius: 100%;
+			}
+
+			.user-info_title {
+				font-family: Roboto;
+				font-style: normal;
+				font-weight: 500;
+				font-size: 16px;
+				line-height: 24px;
+				margin-top: 8px;
+			}
+
+			.user-info_contact {
+				font-family: Roboto;
+				font-style: normal;
+				font-weight: normal;
+				font-size: 14px;
+				line-height: 20px;
+				margin-bottom: 28px;
+			}
+
+			.dhx_sidebar--minimized .user-info_avatar {
+				height: 30px;
+				width: 30px;
+			}
+
+			.dhx_sidebar--minimized .user-info_title,
+			.dhx_sidebar--minimized .user-info_contact {
+				visibility: hidden;
+			}
+
+			.dhx-container,
+			.dhx-container__widget {
+				height: 100%;
+			}
+
+			.sider_container{
+				text-align: left; /* 如果需要水平居中对齐子元素 */
+			}
+
+			.sider_child {
+				display: inline-block;
+				width: 50%; /* 或者设置你想要的宽度 */
+				box-sizing: border-box; /* 防止边框和填充增加元素宽度 */
+				/*border: 1px solid #000; /* 可选：添加边框样式 */
+			}
+
+		</style>
+	</head>
+	<body>
+		<header class="dhx_sample-header">
+			<div class="dhx_sample-header__main">
+				<h1 class="dhx_sample-header__title">
+					<div class="dhx_sample-header__content">
+						BET log analysis
+					</div>
+				</h1>
+			</div>
+		</header>
+		<form id="dhxTheme" class="dhx_sample-controls">
+
+			<section style="display:flex; justify-content: center; padding: 40px;">
+
+				<label for="date-input" class="dhx_sample-label">
+					Item：
+					<select id="sum_time_item" class="dhx_checkbox dhx_sample-checkbox ">
+						<option value="idle_time">Idel Time</option>
+						<!-- <option value="PH_time">PH Time</option> -->
+					</select>
+				</label>
+
+				<!-- start/end time -->
+				<label for="date-input" class="dhx_sample-label">
+					Start：
+					<input type="text" id="start-input" class="dhx_input dhx_sample-input" readonly data-widget-control style="margin-left: 10px;">
+				</label>
+
+				<label for="date-input" class="dhx_sample-label">
+					End：
+					<input type="text" id="end-input" class="dhx_input dhx_sample-input" readonly data-widget-control style="margin-left: 10px;">
+				</label>
+
+				<label for="date-input" class="dhx_sample-label">
+					<input type="button" id="sumResult" value="SUM" class="dhx_sample-btn" style="margin-left: 10px;" onclick="sum_idle_time()">
+				</label>
+			</section>
+
+		</form>
+		<section id="layout" style="height: calc(100% - 121px);"></section>
+		<script>
+			// DHTMLX Layout - https://docs.dhtmlx.com/suite/layout/
+			
+				
+			const layout = new dhx.Layout("layout", {
+				type: "line",
+				cols: [
+					{
+						id: "sidebar",
+						width: "content",
+						css: "dhx_widget--border_right"
+					},
+					{
+						height: "content",
+						rows: [
+							{ id: "toolbar", height: 25 },
+							{ id: "tabbar" },
+						]
+					}
+				]
+			});
+
+			// DHTMLX Toolbar - https://docs.dhtmlx.com/suite/toolbar/
+			const toolbar = new dhx.Toolbar(null);
+			toolbar.data.parse(topmenuData);
+			layout.getCell("toolbar").attach(toolbar);
+
+			// DHTMLX Sidebar - https://docs.dhtmlx.com/suite/sidebar/
+			const sidebar = new dhx.Sidebar(null);
+			sidebar.data.parse(sidebarData);
+			layout.getCell("sidebar").attach(sidebar);
+
+			// All selected Items
+			var all_selected_fof = "1".repeat(lkf_fof.length);
+			var all_selected_gemini = "1".repeat(lkf_Gemini.length);
+			var all_selected_frit = "1".repeat(lkf_frit.length)
+			var all_selected = all_selected_fof + all_selected_gemini + all_selected_frit
+
+			//初始化搜索时间
+			var start_time = new Date();
+			var end_time = new Date();
+			
+			//var dateFormat = require('dateformat');
+			//alert(formatDate(current_time));
+			start_time.setDate(start_time.getDate() - 1);
+			start_time.setHours(0,0,0,0);
+			end_time.setHours(23,59,0,0);
+			var start_time_str = formatDate(start_time);
+			var end_time_str = formatDate(end_time);
+
+
+			// adding events to DHTMLX Sidebar
+			sidebar.events.on("click", id => {
+				if (id === "toggle") {
+					const toggleItem = sidebar.data.getItem("toggle");
+					sidebar.toggle();
+					toggleItem.icon =  sidebar.config.collapsed ? "mdi mdi-menu" : "mdi mdi-backburger";
+
+					if(sidebar.config.collapsed){
+						sidebar.hide("fof_checkbox");
+						sidebar.hide("gemini_checkbox");
+						sidebar.hide("frit_checkbox");
+					}
+					else
+					{
+						sidebar.show("fof_checkbox");
+						sidebar.show("gemini_checkbox");
+						sidebar.show("frit_checkbox");
+					}
+
+				}
+
+
+
+			});
+
+
+			//get control full name
+			function getFullName(el) {
+				var fullName = el.tagName;
+				if (el.id) {
+					fullName += "#" + el.id;
+				}
+				if (el.className) {
+					fullName += "." + el.className.split(" ").join(".");
+				}
+				if (el.parentNode) {
+					return getFullName(el.parentNode) + " > " + fullName;
+				} else {
+					return fullName;
+				}
+			}
+
+
+
+			//do fof/gemini check_box select.
+			function do_select(sta)
+			{
+				// console.log(item.id);
+				// console.log(Object.getOwnPropertyNames(item));
+				// console.log(getFullName(item));
+				// alert(document.getElementById("gemini_4"));
+				//convert to id to lowercase
+				var lkf_fof_id = lkf_fof.map(function(item) {return item.toLowerCase();});
+				var lkf_gemini_id = lkf_Gemini.map(function(item) {return item.toLowerCase();});
+				var lkf_frit_id = lkf_frit.map(function(item) {return item.toLowerCase();});
+
+				if(sta.id == "all_fof_check")
+				{
+					//fof all check/uncheck
+					if(sta.checked){
+						lkf_fof_id.forEach(element => {
+						document.getElementById(element).checked = true;
+						});
+						all_selected_fof = "1".repeat(lkf_fof_id.length);
+					}
+					else
+					{
+						lkf_fof_id.forEach(element => {
+						document.getElementById(element).checked = false;
+						});
+						all_selected_fof = "0".repeat(lkf_fof_id.length);
+					}
+
+				}
+
+				if(sta.id == "all_gemini_check")
+				{
+					//fof all check/uncheck
+					if(sta.checked){
+						lkf_gemini_id.forEach(element => {
+						document.getElementById(element).checked = true;
+						});
+						all_selected_gemini = "1".repeat(lkf_gemini_id.length);
+					}
+					else
+					{
+						lkf_gemini_id.forEach(element => {
+						document.getElementById(element).checked = false;
+						});
+						all_selected_gemini = "0".repeat(lkf_gemini_id.length);
+					}
+
+				}
+
+				if(sta.id == "all_frit_check")
+				{
+					//fof all check/uncheck
+					if(sta.checked){
+						lkf_frit_id.forEach(element => {
+						document.getElementById(element).checked = true;
+						});
+						all_selected_frit = "1".repeat(lkf_frit_id.length);
+					}
+					else
+					{
+						lkf_frit_id.forEach(element => {
+						document.getElementById(element).checked = false;
+						});
+						all_selected_frit = "0".repeat(lkf_frit_id.length);
+					}
+
+				}
+
+				//single fof check /uncheck
+				if(lkf_fof_id.indexOf(sta.id) !== -1)
+				{
+					all_selected_fof = "";
+					var tmp_flag = 0;
+
+					//single uncheck --> all checkbox set to uncheck
+					if(!sta.checked){
+						document.getElementById("all_fof_check").checked = false;
+					}
+					//get all select value, 1 check, 0 uncheck
+					lkf_fof_id.forEach(element =>{
+						if(document.getElementById(element).checked)
+						{
+							all_selected_fof += "1";
+							tmp_flag++;
+						}
+						else
+						{
+							all_selected_fof += "0";
+						}
+
+						}
+					);
+
+
+					if(tmp_flag == lkf_fof_id.length){
+						document.getElementById("all_fof_check").checked = true;
+					}
+
+				}
+
+
+				//single gemini check /uncheck
+				if(lkf_gemini_id.indexOf(sta.id) !== -1)
+				{
+					all_selected_gemini = "";
+					var tmp_flag = 0;
+
+					if(!sta.checked){
+						document.getElementById("all_gemini_check").checked = false;
+					}
+
+					lkf_gemini_id.forEach(element =>{
+						if(document.getElementById(element).checked)
+						{
+							all_selected_gemini += "1";
+							tmp_flag++;
+						}
+						else
+						{
+							all_selected_gemini += "0";
+						}
+
+						}
+					);
+
+
+					if(tmp_flag == lkf_gemini_id.length){
+						document.getElementById("all_gemini_check").checked = true;
+					}
+
+				}
+
+				//single frit check /uncheck
+				if(lkf_frit_id.indexOf(sta.id) !== -1)
+				{
+					all_selected_frit = "";
+					var tmp_flag = 0;
+
+					if(!sta.checked){
+						document.getElementById("all_frit_check").checked = false;
+					}
+
+					lkf_frit_id.forEach(element =>{
+						if(document.getElementById(element).checked)
+						{
+							all_selected_frit += "1";
+							tmp_flag++;
+						}
+						else
+						{
+							all_selected_frit += "0";
+						}
+
+						}
+					);
+
+
+					if(tmp_flag == lkf_frit_id.length){
+						document.getElementById("all_frit_check").checked = true;
+					}
+
+				}
+
+				all_selected = all_selected_fof + all_selected_gemini + all_selected_frit
+
+				console.log("fof:");
+				console.log(all_selected_fof);
+				console.log("gemini:");
+				console.log(all_selected_gemini);
+				console.log("frit:");
+				console.log(all_selected_frit);
+				console.log("all_selected");
+				console.log(all_selected);
+			}
+
+
+
+			// DHTMLX Tabbar - https://docs.dhtmlx.com/suite/tabbar/
+			const tabbar = new dhx.Tabbar(null, {
+				tabAlign: "center",
+				views: [
+					{ id: "idle_time_tab", tab: "Idle Time" },
+					{ id: "current_idle_cell_tab",tab: "当前 Idle Cell"},
+					// { id: "grphic",tab: "grphic", html: "<div></div>" },
+
+				]
+			});
+			layout.getCell("tabbar").attach(tabbar);
+
+			// DHTMLX Layout - https://docs.dhtmlx.com/suite/layout/
+			
+			// ====================idle time grid 相关信息====================
+			const idle_time_dashboard = new dhx.Layout(null, {
+				type: "space",
+				css: "dhx_layout_cell--overflow-auto",
+				rows: [
+					{
+						height: "fit-content",
+						css: "dhx_layout_cell--overflow-auto",
+						type: "wide",
+						cols: [
+							{
+								//Width: "90%",
+								gravity: 5,
+								height: "fit-content",
+								rows: [
+									{
+										type: "line",
+										height: "content",
+										rows: [
+											{
+												id: "grid",
+												height:"1000",
+											},
+										]
+									},
+								]
+							},
+							{
+								height: "fit-content",
+								gravity: 1,
+								minWidth: "100px",
+								rows: [
+									{
+										height: "content",
+										align: "center",
+										id: "form"
+									},
+
+								]
+							}
+						]
+					}
+				]
+			});
+			tabbar.getCell("idle_time_tab").attach(idle_time_dashboard);
+
+			// idle time grid 数据初始化
+			const gridDataset = {{tmp_json|safe}};
+			// 按照lkf_sta顺序排序
+			gridDataset.sort((a, b) => lkf_all_sta.indexOf(a.lkf_sta) - lkf_all_sta.indexOf(b.lkf_sta));
+			const gridConfig = {
+				columns: [
+						{ gravity: 1.5, id: "lkf_sta", header: [{ text: "Station" }] },
+						{ gravity: 1.5, id: "cell", header: [{ text: "Cell" }] },
+						{ gravity: 1, id: "idle_time", header: [{ text: "idle(分钟)" }] },
+						{ gravity: 1.5, id: "stopper_SN", header: [{ text: "SN"}], htmlEnable: true },
+						{ gravity: 3, id: "stopper_time", header: [{ text: "停止测试时间"}], htmlEnable: true },
+						{ gravity: 1.5, id: "starter_SN", header: [{ text: "SN"}], htmlEnable: true },
+						{ gravity: 3, id: "starter_time", header: [{ text: "开始测试时间"}] },
+						{ gravity: 1, id: "error_code", header: [{ text: "Error Code"}] },
+				],
+				// spans: [
+				// 	{ row: "1", column: "lkf_station", rowspan: 5 },
+				// 	{ row: "1", column: "lkf_station_data", rowspan: 5 },
+				// 	{ row: "6", column: "lkf_station", rowspan: 5 },
+				// 	{ row: "6", column: "lkf_station_data", rowspan: 5 },
+
+				// ],
+				headerRowHeight: 30,
+				rowHeight: 20,
+				autoWidth: true,
+				data: gridDataset,
+			};
+
+
+			// DHTMLX Grid - https://docs.dhtmlx.com/suite/grid/
+			const grid = new dhx.Grid(null, {
+				css: "grid",
+				sortable: true,
+				...gridConfig,
+			});
+			idle_time_dashboard.getCell("grid").attach(grid);
+			
+			//grid click function
+			grid.events.on("cellClick", function(row,column){
+				//if (column.id!="paid")
+				//grid.edit(row.id,column.id);
+				console.log(grid.data.getItem(row.id));
+				console.log(grid.data.getItem(row.id)[column.id]);
+			});
+
+			
+			// DHTMLX Form - https://docs.dhtmlx.com/suite/form/
+			// 右侧的filter 窗口
+			const form = new dhx.Form(null, {
+				padding: 5,
+				width: "auto",
+				rows: [
+					{
+						name: "idle_time_over_less",
+						type: "fieldset",
+						label: "Idle Time",
+						rows:[
+						{
+					
+							width: "100%",
+							name: "over_time",
+							type: "input",
+							label: "Over",
+							value: 120,
+							inputType: "number",
+							// required: true,
+							labelWidth: 20,
+							labelPosition: "left",
+							
+						},
+						{
+							type: "spacer",
+						},
+						{
+							width: "100%",
+							name: "less_time",
+							type: "input",
+							label: "Less",
+							value: 0,
+							inputType: "number",
+							//required: true,
+							labelWidth: 20,
+							labelPosition: "left",
+							
+						}
+						]
+					
+					},
+					{
+						name: "station",
+						type: "fieldset",
+						label: "Idle Time",
+						rows:[
+						{
+							name: "sta_combo",
+							type: "combo",
+							label: "station",
+							// required: true,
+							labelPosition: "top",
+							// helpMessage: "Help information",
+							labelWidth: 20,
+							multiselection: true,
+						},
+						]
+
+					},
+					{
+						align: "end",
+						cols: [
+						{
+							name: "clear_button",
+							type: "button",
+							submit: true,
+							text: "Clear",
+							size: "medium",
+							view: "flat",
+							color: "primary",
+							padding: 2
+							
+							// url: "https://docs.dhtmlx.com/suite/backend/formData/",
+						},
+						{
+							name: "filter_button",
+							type: "button",
+							submit: true,
+							text: "Filter",
+							size: "medium",
+							view: "flat",
+							color: "primary",
+							padding: 2
+							
+							// url: "https://docs.dhtmlx.com/suite/backend/formData/",
+						}
+						]
+					},
+					{
+						type: "spacer",
+					},
+					{
+						name: "import_excel_field",
+						type: "fieldset",
+						label: "import",
+						rows:[
+							{
+								name: "excel_button",
+								type: "button",
+								submit: true,
+								text: "import Excel",
+								size: "medium",
+								view: "flat",
+								color: "primary",
+							}
+						]
+					}
+				]
+			});
+			
+			idle_time_dashboard.getCell("form").attach(form);
+
+			// 初始化combo选项
+			const sta_combo = form.getItem("sta_combo").getWidget();
+			//var formattedData = lkf_all_sta.map(item => ({ value: item, text: item }));
+			sta_combo.data.parse(lkf_all_sta.map(item => ({ id: item, value: item })));
+
+			//  filter 功能开始 -------------------------------------------------------
+			//  filter button action
+			form.getItem("filter_button").events.on("click", function () {
+				const filterData = form.getValue();
+				var filter_idle_time_start = filterData['over_time'];
+				var filter_idle_time_end = filterData['less_time'];
+				var filter_selected_sta = filterData['sta_combo'];
+				
+				console.log(filter_idle_time_start);
+				console.log(filter_idle_time_end);
+				console.log(filter_selected_sta);
+				console.log(grid.data.serialize().length)
+								
+				grid.data.filter(function (item) {
+					
+					//alert(item["idle_time"]);
+					let check = true;
+
+					if(filter_idle_time_start != null && filter_idle_time_start != 0)
+					{
+						if(filter_idle_time_start > item["idle_time"])
+						check = false;
+					}
+
+					if(filter_idle_time_end != null && filter_idle_time_end != 0)
+					{
+						if(filter_idle_time_end < item["idle_time"])
+						check = false;
+					}
+
+					if(filter_selected_sta != null && filter_selected_sta.length != 0)
+					{
+						if(!filter_selected_sta.includes(item["lkf_sta"])){
+						check = false;
+						}
+					
+					}
+					return check;
+				});
+
+				console.log(grid.data.serialize().length)
+			});
+
+
+			// clear button action
+			form.getItem("clear_button").events.on("click", function() {
+				form.clear();
+				grid.data.filter();
+			});
+
+			// excel button 导出excel
+			form.getItem("excel_button").events.on("click", function () {
+				// alert(grid.data.serialize().length);
+				// return;
+				const postData = {
+					startInput: start_time_str,
+					endInput: end_time_str,
+					all_selected_sta: all_selected
+				};
+				//show loading数据的对话框
+				load_popup.show('sumResult',popup.config);
+
+				dhx.ajax.post('/idle_excel', postData).then(function (data) {
+					load_popup.hide();
+					console.log(data);
+					// Assuming the server has returned the file path
+
+					// 创建一个隐藏的a元素来触发下载
+					var a = document.createElement('a');
+					a.href = data;
+					a.style.display = 'none';
+					document.body.appendChild(a);
+					a.click();
+						
+	
+					//console.log(data);
+				}).catch(function (err) {
+					console.log(err.status + " " + err.statusText);
+					load_popup.hide();
+				});
+			});
+
+			// ---------------------------------------------------------
+
+			//  // ====================当前idle cell的 tab====================
+			const current_idle_cell_dashboard = new dhx.Layout(null, {
+				type: "space",
+				css: "dhx_layout_cell--overflow-auto",
+				rows: [
+					{
+						height: "fit-content",
+						css: "dhx_layout_cell--overflow-auto",
+						type: "wide",
+						cols: [
+							{
+								//Width: "90%",
+								gravity: 5,
+								height: "fit-content",
+								rows: [
+									{
+										type: "line",
+										height: "content",
+										rows: [
+											{
+												id: "grid",
+												height:"1000",
+											},
+										]
+									},
+								]
+							},
+							{
+								height: "fit-content",
+								gravity: 1,
+								minWidth: "100px",
+								rows: [
+									{
+										height: "content",
+										align: "center",
+										id: "form"
+									},
+
+								]
+							}
+						]
+					}
+				]
+			});
+
+
+			tabbar.getCell("current_idle_cell_tab").attach(current_idle_cell_dashboard);
+
+			// idle time grid 数据初始化
+			const current_idle_cell_gridDataset = {{current_idle_json|safe}};
+			// 按照lkf_sta顺序排序
+			const current_idle_cell_gridConfig = {
+				columns: [
+						{ gravity: 1.5, id: "lkf_sta", header: [{ text: "Station" }] },
+						{ gravity: 1.5, id: "cell", header: [{ text: "Cell" }] },
+						{ gravity: 3,   id: "Log_time", header: [{ text: "停止测试时间"}], htmlEnable: true },
+						{ gravity: 1.5, id: "SN", header: [{ text: "SN"}], htmlEnable: true },
+						{ gravity: 1,   id: "error_code", header: [{ text: "Error Code"}] },
+						{ gravity: 3,   id: "sync_time", header: [{ text: "Log同步时间"}] },
+						{ gravity: 1.5,   id: "idle_time", header: [{ text: "闲置时间"}] }
+						
+				],
+				headerRowHeight: 30,
+				rowHeight: 20,
+				autoWidth: true,
+				data: current_idle_cell_gridDataset,
+			};
+
+
+			// DHTMLX Grid - https://docs.dhtmlx.com/suite/grid/
+			const current_idle_cell_grid = new dhx.Grid(null, {
+				css: "grid",
+				sortable: true,
+				...current_idle_cell_gridConfig,
+			});
+			current_idle_cell_dashboard.getCell("grid").attach(current_idle_cell_grid);
+
+			// 右侧的filter 窗口
+			const current_idle_cell_form = new dhx.Form(null, {
+				padding: 5,
+				width: "auto",
+				rows: [
+					{
+						name: "idle_time_over_less",
+						type: "fieldset",
+						label: "Last Time",
+						rows:[
+						{
+					
+							width: "100%",
+							name: "over_time",
+							type: "input",
+							label: "Over",
+							value: 120,
+							inputType: "number",
+							// required: true,
+							labelWidth: 20,
+							labelPosition: "left",
+							
+						},
+						{
+							type: "spacer",
+						},
+						{
+							width: "100%",
+							name: "less_time",
+							type: "input",
+							label: "Less",
+							value: 0,
+							inputType: "number",
+							//required: true,
+							labelWidth: 20,
+							labelPosition: "left",
+							
+						}
+						]
+					
+					},
+					{
+						name: "station",
+						type: "fieldset",
+						label: "Idle Time",
+						rows:[
+						{
+							name: "sta_combo",
+							type: "combo",
+							label: "station",
+							// required: true,
+							labelPosition: "top",
+							// helpMessage: "Help information",
+							labelWidth: 20,
+							multiselection: true,
+						},
+						]
+
+					},
+					{
+						align: "end",
+						cols: [
+						{
+							name: "clear_button",
+							type: "button",
+							submit: true,
+							text: "Clear",
+							size: "medium",
+							view: "flat",
+							color: "primary",
+							padding: 2
+							
+							// url: "https://docs.dhtmlx.com/suite/backend/formData/",
+						},
+						{
+							name: "filter_button",
+							type: "button",
+							submit: true,
+							text: "Filter",
+							size: "medium",
+							view: "flat",
+							color: "primary",
+							padding: 2
+							
+							// url: "https://docs.dhtmlx.com/suite/backend/formData/",
+						}
+						]
+					},
+					{
+						type: "spacer",
+					},
+					{
+						name: "import_excel_field",
+						type: "fieldset",
+						label: "import",
+						rows:[
+							{
+								name: "excel_button",
+								type: "button",
+								submit: true,
+								text: "import Excel",
+								size: "medium",
+								view: "flat",
+								color: "primary",
+							}
+						]
+					}
+				]
+			});
+			
+			current_idle_cell_dashboard.getCell("form").attach(current_idle_cell_form);
+
+
+			// 初始化combo选项
+			const current_cell_sta_combo = current_idle_cell_form.getItem("sta_combo").getWidget();
+			//var formattedData = lkf_all_sta.map(item => ({ value: item, text: item }));
+			current_cell_sta_combo.data.parse(lkf_all_sta.map(item => ({ id: item, value: item })));
+
+			//  filter 功能开始 -------------------------------------------------------
+			//  filter button action
+			current_idle_cell_form.getItem("filter_button").events.on("click", function () {
+				
+				const filterData = current_idle_cell_form.getValue();
+				var filter_idle_time_start = filterData['over_time'];
+				var filter_idle_time_end = filterData['less_time'];
+				var filter_selected_sta = filterData['sta_combo'];
+
+								
+				current_idle_cell_grid.data.filter(function (item) {
+					
+					//alert(item["idle_time"]);
+					let check = true;
+
+					if(filter_idle_time_start != null && filter_idle_time_start != 0)
+					{
+						if(filter_idle_time_start > item["idle_time"])
+						check = false;
+					}
+
+					if(filter_idle_time_end != null && filter_idle_time_end != 0)
+					{
+						if(filter_idle_time_end < item["idle_time"])
+						check = false;
+					}
+
+					if(filter_selected_sta != null && filter_selected_sta.length != 0)
+					{
+						if(!filter_selected_sta.includes(item["lkf_sta"])){
+						check = false;
+						}
+					
+					}
+					return check;
+				});
+			});
+
+
+			// clear button action
+			current_idle_cell_form.getItem("clear_button").events.on("click", function() {
+				current_idle_cell_form.clear();
+				current_idle_cell_grid.data.filter();
+			});
+
+			// excel button 导出excel
+			current_idle_cell_form.getItem("excel_button").events.on("click", function () {
+				// alert(grid.data.serialize().length);
+				// return;
+				const postData = {
+					startInput: start_time_str,
+					endInput: end_time_str,
+					json_idle_data: current_idle_cell_grid.data.serialize()
+				};
+				//show loading数据的对话框
+				load_popup.show('sumResult',popup.config);
+
+				dhx.ajax.post('/current_idle_cell_excel', postData).then(function (data) {
+					load_popup.hide();
+					console.log(data);
+					// Assuming the server has returned the file path
+
+					// 创建一个隐藏的a元素来触发下载
+					var a = document.createElement('a');
+					a.href = data;
+					a.style.display = 'none';
+					document.body.appendChild(a);
+					a.click();
+						
+	
+					//console.log(data);
+				}).catch(function (err) {
+					console.log(err.status + " " + err.statusText);
+					load_popup.hide();
+				});
+			});
+
+
+
+
+
+			// 格式化时间对象
+			function formatDate(date) {
+				// 获取年、月、日、小时和分钟
+				const year = date.getFullYear() % 100; // 取年份的后两位
+				const month = (date.getMonth() + 1).toString().padStart(2, '0');
+				const day = date.getDate().toString().padStart(2, '0');
+				const hours = date.getHours().toString().padStart(2, '0');
+				const minutes = date.getMinutes().toString().padStart(2, '0');
+				// 构建自定义格式字符串
+				const customFormat = `${day}/${month}/${year} ${hours}:${minutes}`;
+				return customFormat;
+				}
+			
+			//初始化时间对象。
+
+			const startInput = document.getElementById("start-input");
+			const endInput = document.getElementById("end-input");
+
+			startInput.value =formatDate(start_time);
+			endInput.value = formatDate(end_time);
+
+			const load_popup = new dhx.Popup({
+				css: "dhx_widget--border-shadow"
+			});
+
+			load_popup.attachHTML("<div class='load_popup_css'>Data loading.......</div>");
+			const popup_config = {
+				centering: true,
+				mode: "bottom"
+			};
+
+			//start input
+			const calendar = new dhx.Calendar(null, { 
+				dateFormat: "%d/%m/%y %H:%i", 
+				css: "dhx_widget--bordered",
+				timePicker: true,
+    			value: start_time,
+			});
+
+			// init popup and attach calendar
+			const popup = new dhx.Popup();
+			popup.attach(calendar);
+
+			// when calendar value changed, it trigger update input value and hide popup
+			calendar.events.on("change", function () {
+				startInput.value = calendar.getValue();
+				popup.hide();
+			});
+			
+
+			// on input click we show popup
+			startInput.addEventListener("click", function () {
+				popup.show(startInput);
+			});
+
+
+			const calendar1 = new dhx.Calendar(null, { 
+				dateFormat: "%d/%m/%y %H:%i", 
+				css: "dhx_widget--bordered",
+				timePicker: true,
+    			value: end_time,
+			 });
+			const popup1 = new dhx.Popup();
+			popup1.attach(calendar1);
+
+			calendar1.events.on("change", function () {
+				endInput.value = calendar1.getValue();
+				popup1.hide();
+			});
+
+
+			endInput.addEventListener("click", function () {
+				popup1.show(endInput);
+			});
+
+
+			// 统计数据idle 数据
+			function sum_idle_time()
+			{
+				start_time_str = startInput.value;
+				end_time_str = endInput.value;
+
+				const postData = {
+					startInput: start_time_str,
+					endInput: end_time_str,
+					all_selected_sta: all_selected
+				};
+				//show loading数据的对话框
+				load_popup.show('sumResult',popup.config);
+
+				dhx.ajax.post('/post_idle', postData).then(function (data) {
+					load_popup.hide();
+					grid.data.parse(data);
+					//console.log(data);
+				}).catch(function (err) {
+					console.log(err.status + " " + err.statusText);
+					load_popup.hide();
+				});
+				
+			}
+
+		</script>
+	</body>
+</html>
